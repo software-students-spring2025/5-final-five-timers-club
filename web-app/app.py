@@ -16,6 +16,8 @@ DEFAULT_EMOTION_DATA = {
     "surprise": "😱",
 }
 
+playlistName = "" #emotion is stored here to be used in spotify API
+
 #sample home page
 @app.route("/", methods=["GET", "POST"])
 def home():
@@ -31,11 +33,13 @@ def submit_video():
     if not base64_img:
         return jsonify({"error": "No image provided"}), 400
 
+    #print("Received base64 image:", base64_img[:100])  #for debugging - print first 100 characters (don't log the entire string)
+
     try:
         emotion = detect_emotion(base64_img)
-        print("Detected emotion:", emotion) #debugging
+        print("Detected emotion:", emotion)  # Debugging output
     except Exception as e:
-        print(f"Error detecting emotion: {e}")
+        print(f"Error detecting emotion-SUBMIT: {e}")
         return jsonify({"emotion": "unknown", "emoji": "🤔"})
   
     DEFAULT_EMOTION_DATA = {
@@ -50,21 +54,23 @@ def submit_video():
 
     if emotion:
         emoji = DEFAULT_EMOTION_DATA.get(emotion, "🤔")
+        playlistName = emotion
         return jsonify({"emotion": emotion, "emoji": emoji})
     
     return jsonify({"emotion": "unknown", "emoji": "🤔"})
 
 @app.route("/detect", methods=["POST"])
 def detect_emotion(base64_image):
-    """Detect emotion by sending base64 image to the ML container."""
+    """Detect emotion by sending base64 image to the ML client."""
     try:
         response = requests.post(
-            #'http://ml:6000/detect',
+            'http://localhost:6000/detect',
             json={'image': base64_image},
             timeout=10
         )
         response.raise_for_status()
+        playlistName = response.json().get('emotion')
         return response.json().get('emotion')
     except Exception as e:
-        print(f"Error detecting emotion: {e}")
+        print(f"Error detecting emotion-DETECT: {e}")
         return None
