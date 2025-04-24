@@ -11,6 +11,10 @@ from flask import (
 import requests
 from dotenv import load_dotenv
 
+load_dotenv()
+
+app = Flask(__name__)
+
 @app.route("/get-playlist", methods=["POST"])
 def get_playlist_proxy():
     # plan to proxy the image to ml/playlist and return json
@@ -30,9 +34,6 @@ def get_playlist_proxy():
         app.logger.error(f"Playlist proxy error: {e}")
         return jsonify({"error": "Failed to fetch playlist"}), 500
 
-load_dotenv()
-
-app = Flask(__name__)
 
 DEFAULT_EMOTION_DATA = {
     "angry": "😡",
