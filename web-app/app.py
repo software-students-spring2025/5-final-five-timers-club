@@ -11,6 +11,25 @@ from flask import (
 import requests
 from dotenv import load_dotenv
 
+@app.route("/get-playlist", methods=["POST"])
+def get_playlist_proxy():
+    # plan to proxy the image to ml/playlist and return json
+    data = request.get_json()
+    img = data.get("image")
+    if not img:
+        return jsonify({"error": "No image provided"}), 400
+    try:
+        resp = requests.post(
+            "http://localhost:6000/playlist",
+            json={"image": img},
+            timeout=10
+        )
+        resp.raise_for_status()
+        return jsonify(resp.json())
+    except Exception as e:
+        app.logger.error(f"Playlist proxy error: {e}")
+        return jsonify({"error": "Failed to fetch playlist"}), 500
+
 load_dotenv()
 
 app = Flask(__name__)
