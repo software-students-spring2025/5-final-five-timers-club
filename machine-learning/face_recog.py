@@ -36,13 +36,14 @@ def detect_emotion(base64_image):
             print("No face detected")
             return None
 
-        result = {
-            "main_emotion": result[0]["main_emotion"],
+        emotion = result[0]["emotion"]
+        to_store = {
+            "main_emotion": emotion,
             "all_emotions": result[0]["emotion"],
         }
-        model.insert_one(result)
+        model.insert_one(to_store)
 
-        return result[0]["dominant_emotion"]
+        return emotion
     except Exception as e:
         print("Emotion detection error:", e)
         return None
@@ -92,3 +93,7 @@ def get_playlist():
         return jsonify({"emotion": emotion, "playlist_uri": playlist_uri})
     else:
         return jsonify({"emotion": emotion, "error": "No playlist found"}), 404
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=6000, debug=True)
