@@ -1,19 +1,23 @@
-from flask import (
-    Flask,
-    render_template,
-    request,
-    redirect,
-    url_for,
-    flash,
-    session,
-    jsonify,
-)
+"""
+Main Flask application
+Web app captures images, detects emotions, and recommends playlists that correlate to the emotion.
+"""
+
+import os
+from flask import Flask, render_template, request, jsonify
 import requests
 from dotenv import load_dotenv
+from pymongo import MongoClient
 
 load_dotenv()
 
 app = Flask(__name__)
+
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
+mongo_client = MongoClient(MONGO_URI)
+db = mongo_client["emotion_playlist"]
+emotion_db = db["emotions"]
+playlist_db = db["playlists"]
 
 DEFAULT_EMOTION_DATA = {
     "angry": "😡",
@@ -48,6 +52,14 @@ def submit_video():
     try:
         emotion = detect_emotion(base64_img)
         print("Detected emotion:", emotion)  # Debugging output
+
+        if emotion:
+            emotion_record = {
+                "emotion": emotion,
+                "user_agent": request.headers.get("User-Agent"),
+            }
+            emotion_db.insert_one(emotion_record)
+
     except Exception as e:
         print(f"Error detecting emotion-SUBMIT: {e}")
         return jsonify({"emotion": "unknown", "emoji": "🤔"})
