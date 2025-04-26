@@ -31,19 +31,14 @@ def detect_emotion(base64_image):
     try:
         img = readb64(base64_image)
         result = DeepFace.analyze(img, actions=["emotion"], enforce_detection=False)
-        print("DeepFace result:", result)
-        if not result or not isinstance(result, list):
-            print("No face detected")
-            return None
-
-        emotion = result[0]["emotion"]
+        scores   = result[0]["emotion"]
+        dominant = result[0]["dominant_emotion"]
         to_store = {
-            "main_emotion": emotion,
-            "all_emotions": result[0]["emotion"],
+            "main_emotion": dominant,
+            "all_emotions": scores,
         }
         model.insert_one(to_store)
-
-        return emotion
+        return dominant
     except Exception as e:
         print("Emotion detection error:", e)
         return None
