@@ -1,5 +1,6 @@
 import base64
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from deepface import DeepFace
 import cv2
 import os
@@ -11,6 +12,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app)
 
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
 mongo_client = MongoClient(MONGO_URI)
@@ -61,6 +63,18 @@ def detect():
     if emotion:
         return jsonify({"emotion": emotion})
     return jsonify({"error": "Could not detect emotion"}), 400
+
+
+@app.route("/token", methods=["GET"])
+def token():
+    """Return a Spotify API token for Web Playback SDK"""
+    try:
+        t = get_token()
+        return jsonify({"token": t})
+    except Exception as e:
+        print("Token error:", e)
+        return jsonify({"error": "Could not fetch token"}), 500
+
 
 
 @app.route("/playlist", methods=["POST"])
