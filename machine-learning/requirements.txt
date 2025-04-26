@@ -4,4 +4,7 @@ numpy<2
 opencv-python-headless==4.11.0.86
 tensorflow==2.15.0
 tf-keras==2.15.0
+pymongo>=4.0.0
+python-dotenv>=1.0.0
+requests>=2.26.0
 pytest
