@@ -58,7 +58,7 @@ async function captureAndSendImage(videoEl) {
       <p>Detected: ${data.emotion}</p>
     `;
 
-    // 3) on the very first time, stop polling and fetch playlist
+    // on the very first time stop polling and fetch playlist!
     if (firstEmotion) {
       firstEmotion = false;
       clearInterval(captureInterval);
