@@ -101,3 +101,5 @@ def detect_emotion(base64_image):
     except Exception as e:
         print(f"Error detecting emotion-DETECT: {e}")
         return None
+    
+
