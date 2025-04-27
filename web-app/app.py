@@ -50,7 +50,13 @@ def submit_video():
     # print("Received base64 image:", base64_img[:100])  #for debugging - print first 100 characters (don't log the entire string)
 
     try:
-        emotion = detect_emotion(base64_img)
+        resp = requests.post(
+            "http://localhost:6001/detect",
+            json={"image": base64_img},
+            timeout=10
+        )
+        resp.raise_for_status()
+        emotion = resp.json().get("emotion")
         print("Detected emotion:", emotion)  # Debugging output
 
         if emotion:
@@ -87,7 +93,7 @@ def detect_emotion(base64_image):
     """Detect emotion by sending base64 image to the ML client."""
     try:
         response = requests.post(
-            "http://localhost:6000/detect", json={"image": base64_image}, timeout=10
+            "http://localhost:6001/detect", json={"image": base64_image}, timeout=10
         )
         response.raise_for_status()
         playlistName = response.json().get("emotion")

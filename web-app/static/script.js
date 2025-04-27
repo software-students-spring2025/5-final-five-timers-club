@@ -1,99 +1,139 @@
-const video = document.querySelector("#video");
-const startBtn = document.querySelector("#startBtn");
-const stopBtn = document.querySelector("#stopBtn");
-const container = document.querySelector(".home-container");
+const ML_BASE = 'http://localhost:6001';
 
-const resultDisplay = document.querySelector("#result-box");
-const box = document.querySelector(".result")
+const video     = document.querySelector("#video");
+const startBtn  = document.querySelector("#startBtn");
+const stopBtn   = document.querySelector("#stopBtn");
+const resultBox = document.querySelector("#result-box");
+const playerEl  = document.querySelector("#player");
 
-//start webcam
+let captureInterval;
+let firstEmotion;
+
 startBtn.addEventListener("click", () => {
-    const constraints = { video: true };
-    navigator.mediaDevices
-    .getUserMedia(constraints)
-    .then(function (stream) {
-        console.log("Camera access granted.");
-        video.srcObject = stream;
-        video.play();
-        container.style.display = "flex";
-        captureInterval = setInterval(() => captureAndSendImage(video), 5000);
+  firstEmotion = true;
+  resultBox.innerHTML = "";
+  playerEl.innerHTML   = "";
+
+  navigator.mediaDevices.getUserMedia({ video: true })
+    .then(stream => {
+      video.srcObject = stream;
+      video.play();
+      captureInterval = setInterval(() => captureAndSendImage(video), 5000);
     })
-    .catch(function (error) {
-        console.error("Error accessing camera:", error);
-    });
+    .catch(err => console.error("Camera error:", err));
 });
 
-// end webcam
 stopBtn.addEventListener("click", () => {
-    const video = document.querySelector('video');
-    const mediaStream = video.srcObject;
-    const tracks = mediaStream.getTracks();
-    tracks[0].stop();
-    tracks.forEach(track => track.stop())
-
-    if (captureInterval) {
-        clearInterval(captureInterval);
-        captureInterval = null;
-    }
-
+  if (video.srcObject) video.srcObject.getTracks().forEach(t => t.stop());
+  clearInterval(captureInterval);
 });
 
-// 
+async function captureAndSendImage(videoEl) {
+  if (!videoEl.videoWidth) return;
 
-function captureAndSendImage(videoElement) {
-    if (!videoElement.videoWidth || !videoElement.videoHeight) {
-        console.warn("Video not ready yet.");
-        return;
-    }
+  // grabbing frame
+  const canvas = document.createElement("canvas");
+  canvas.width  = videoEl.videoWidth;
+  canvas.height = videoEl.videoHeight;
+  canvas.getContext("2d").drawImage(videoEl, 0, 0);
+  const imgBase64 = canvas.toDataURL("image/jpeg");
 
-    const canvas = document.createElement('canvas');
-    canvas.width = videoElement.videoWidth;
-    canvas.height = videoElement.videoHeight;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(videoElement, 0, 0);
-
-    const base64Image = canvas.toDataURL('image/jpeg');
-
-    fetch('/submit-video', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ image: base64Image })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.emotion && data.emoji) {
-            console.log(data)
-            console.log("ResultDisplay exists:", resultDisplay);
-            console.log("Emotion Detected:", data.emotion);
-            resultDisplay.innerHTML = ` <span style="font-size: 8rem;">${data.emoji}</span>`;
-        } else {
-            resultDisplay.innerHTML = `Could not detect emotion 😕`;
-        }
-    })
-    .catch(err => {
-        console.error('Emotion detection failed', err);
-        resultDisplay.innerHTML = `Error detecting emotion 😕`;
-    });
-}
-
-// send image to deepface server and update our site
-async function sendImageToServer(base64Image) {
-    const response = await fetch("/submit-video", {
+  try {
+    // sending web-app to detect emotion + emoji
+    const res  = await fetch("/submit-video", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ image: base64Image })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ image: imgBase64 })
     });
-  
-    const data = await response.json();
-    console.log("Detected Emotion:", data.emotion, "Emoji:", data.emoji);
-  
-    // Update the emoji in the DOM
-    const resultDisplay = document.getElementById("result-box");
-    if (resultDisplay) {
-        resultDisplay.textContent = data.emoji;
+    const data = await res.json();
+
+    if (!data.emotion || !data.emoji) {
+      resultBox.textContent = "Could not detect emotion 😕";
+      return;
     }
+
+    // showing detected emoji + text
+    resultBox.innerHTML = `
+      <span style="font-size:8rem">${data.emoji}</span>
+      <p>Detected: ${data.emotion}</p>
+    `;
+
+    // 3) on the very first time, stop polling and fetch playlist
+    if (firstEmotion) {
+      firstEmotion = false;
+      clearInterval(captureInterval);
+
+      // getting a client-credentials token for Web Playback SDK
+      const tkRes = await fetch(`${ML_BASE}/token`);
+      const { token } = await tkRes.json();
+
+      // getting the playlist URI for this emotion
+      const plRes = await fetch(`${ML_BASE}/playlist`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: imgBase64 })
+      });
+
+      // checking for HTTP errors first!
+      if (!plRes.ok) {
+        console.error("❌ /playlist failed:", plRes.status, await plRes.json());
+        return;
+      }
+
+      // now safely parsing and pulling out playlist_uri
+      const plData      = await plRes.json();
+      const playlist_uri = plData.playlist_uri;
+      if (!playlist_uri) {
+        console.warn("⚠️ no playlist_uri in /playlist response", plData);
+        return;
+      }
+
+      // “open.spotify.com/embed” fallback
+      const embedUri = playlist_uri
+        .replace(/:/g, "/")
+        .replace(/^spotify/, "open.spotify.com/embed");
+      playerEl.innerHTML = `
+        <iframe
+          src="https://${embedUri}"
+          width="300" height="380" frameborder="0"
+          allow="encrypted-media">
+        </iframe>`;
+
+      // initializing the Web Playback SDK to actually playyyyy
+      const initPlayer = () => {
+        const player = new Spotify.Player({
+          name: "Emotion DJ",
+          getOAuthToken: cb => cb(token)
+        });
+        player.connect().then(_ => {
+          player._options.getOAuthToken(access_token => {
+            fetch("https://api.spotify.com/v1/me/player/play", {
+              method: "PUT",
+              headers: {
+                "Authorization": `Bearer ${access_token}`,
+                "Content-Type":   "application/json"
+              },
+              body: JSON.stringify({ context_uri: playlist_uri })
+            });
+          });
+        });
+      };
+
+      if (window.Spotify && Spotify.Player) {
+        initPlayer();
+      } else {
+        const tag = document.createElement("script");
+        tag.src   = "https://sdk.scdn.co/spotify-player.js";
+        tag.onload = initPlayer;
+        document.head.appendChild(tag);
+      }
+    }
+
+  } catch (err) {
+    console.error("Error in captureAndSendImage:", err);
+    resultBox.textContent = "Error detecting emotion 😕";
+  }
 }
+
+
+
