@@ -26,3 +26,37 @@
     display: flex;
 
 }
+
+.songs-container {
+    max-width: 800px;
+}
+
+.song-item {
+    margin-bottom: 20px;
+    padding: 15px;
+    border-radius: 5px;
+    background-color: lightgray;
+}
+
+.emotion-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.song-info {
+    background-color: lightgray;
+}
+
+.spotify-link {
+    display: inline-block;
+    margin-top: 10px;
+    background-color: #1DB954;
+    color: black;
+}
+
+audio {
+    width: 100%;
+    margin: 10px 0;
+}
