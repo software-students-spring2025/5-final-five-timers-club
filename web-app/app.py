@@ -2,8 +2,9 @@
 Main Flask application
 Web app captures images, detects emotions, and recommends playlists that correlate to the emotion.
 """
+
 import os
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, url_for
 import requests
 from dotenv import load_dotenv
 from pymongo import MongoClient
@@ -22,10 +23,12 @@ login_manager.login_view = "auth.login"
 from bson.objectid import ObjectId
 from auth import auth_bp, User
 
+
 # user loader callback
 @login_manager.user_loader
 def load_user(user_id):
     return User.get(user_id)
+
 
 # register the auth blueprint
 app.register_blueprint(auth_bp)
@@ -57,6 +60,7 @@ def home():
 
 
 @app.route("/submit-video", methods=["POST"])
+@login_required
 def submit_video():
     """Handle image submission, analyze emotion, and return the result."""
     data = request.get_json()
@@ -70,9 +74,7 @@ def submit_video():
     try:
         # call the ML microservice
         resp = requests.post(
-            "http://localhost:6001/detect",
-            json={"image": base64_img},
-            timeout=10
+            "http://localhost:6001/detect", json={"image": base64_img}, timeout=10
         )
         resp.raise_for_status()
         emotion = resp.json().get("emotion")
@@ -121,7 +123,62 @@ def detect_emotion(base64_image):
     except Exception as e:
         print(f"Error detecting emotion-DETECT: {e}")
         return None
-    
+
+
+@app.route("/my-songs")
+@login_required
+def my_songs():
+    """Show playlists that were generated for a user"""
+
+    users_emotions = list(emotion_db.find({"user_id": current_user.id}))
+
+    print(f"Found {len(users_emotions)} emotion records for user {current_user.id}")
+    print("Available collections:", db.list_collection_names())
+
+    songs = []
+
+    for i in users_emotions:
+        emotion = i.get("emotion")
+
+        print(f"Processing emotion record: {emotion}")
+
+        if emotion:
+            # Try to get the most recent song for this emotion
+            try:
+                collection_name = emotion.lower()
+                if collection_name in db.list_collection_names():
+                    song = db[collection_name].find_one()
+                    print(f"Found song for {emotion}: {song}")
+                else:
+                    print(f"No collection found for emotion: {emotion}")
+                    song = None
+            except Exception as e:
+                print(f"Error fetching song for {emotion}: {e}")
+                song = None
+
+            if song:
+                if "_id" in song:
+                    song["_id"] = str(song["_id"])
+
+                songs.append(
+                    {
+                        "emotion": emotion,
+                        "emoji": DEFAULT_EMOTION_DATA.get(emotion, "🤔"),
+                        "song": song,
+                    }
+                )
+            else:
+                # Add record even without a song
+                i.append(
+                    {
+                        "emotion": emotion,
+                        "emoji": DEFAULT_EMOTION_DATA.get(emotion, "🤔"),
+                        "song": None,
+                    }
+                )
+
+    return render_template("my_songs.html", songs=songs)
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
