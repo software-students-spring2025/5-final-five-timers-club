@@ -5,7 +5,7 @@ from deepface import DeepFace
 import cv2
 import os
 import numpy as np
-from get_playlist import get_playlist_uri, get_token
+from get_playlist import get_song_by_emotion, get_token
 from pymongo import MongoClient
 from dotenv import load_dotenv
 
@@ -76,28 +76,27 @@ def token():
         return jsonify({"error": "Could not fetch token"}), 500
 
 
-
 @app.route("/playlist", methods=["POST"])
 def playlist():
     img_b64 = request.json.get("image")
     if not img_b64:
         return jsonify(error="No image"), 400
 
-    # detect again, or forward to /detect
     emotion = detect_emotion(img_b64)
     if not emotion:
         return jsonify(error="Detection failed"), 400
 
     try:
         token = get_token()
-        uri   = get_playlist_uri(token, emotion)
+        song  = get_song_by_emotion(token, emotion)
     except Exception as e:
         print("Spotify error:", e)
         return jsonify(error="Spotify request failed"), 500
 
-    if not uri:
-        return jsonify(error="No playlist found"), 404
-    return jsonify(emotion=emotion, playlist_uri=uri)
+    if not song:
+        return jsonify(error="No song found"), 404
+
+    return jsonify(emotion=emotion, song=song)
 
 
 if __name__ == "__main__":

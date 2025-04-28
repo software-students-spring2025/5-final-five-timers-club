@@ -10,10 +10,8 @@ CLIENT_ID     = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 MONGO_URI     = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
 
-# setting up cache
 mongo_client = MongoClient(MONGO_URI)
 db           = mongo_client["emotion_playlist"]
-spotify_db   = db["data"]
 
 
 def get_token():
@@ -32,46 +30,42 @@ def get_token():
     return resp.json()["access_token"]
 
 
-def get_playlist_uri(token, emotion):
-    """Search Spotify for up to 5 playlists matching `emotion`, skip any nulls, and return the first valid URI."""
+def get_song_by_emotion(token, emotion):
+    """Search Spotify for a song matching the given emotion, return its data, and store it in the database."""
     url     = "https://api.spotify.com/v1/search"
     headers = {"Authorization": f"Bearer {token}"}
     params  = {
         "q": emotion,
-        "type": "playlist",
+        "type": "track",
         "limit": 5
     }
 
-    # let's fetch up to 5 results for now
     resp = get(url, headers=headers, params=params)
     resp.raise_for_status()
     data = resp.json() or {}
 
-    # pulling out the list, might contain nulls :(
-    raw_items = data.get("playlists", {}).get("items", [])
-    # attempt to filter out any null entries
-    items = [pl for pl in raw_items if pl and pl.get("uri")]
+    raw_items = data.get("tracks", {}).get("items", [])
+    items = [track for track in raw_items if track and track.get("uri")]
 
     if not items:
-        print(f"▶ No valid playlists found for emotion: {emotion}")
+        print(f"▶ No valid songs found for emotion: {emotion}")
         return None
 
-    # take the first good one (CHANGE FOR RANDOMIZATION OF THE PLAYLISTS LATER)
     first = items[0]
-    uri   = first["uri"]
 
-    # cache it
-    spotify_db.update_one(
-        {"type": "playlist", "emotion": emotion},
-        {"$set": {
-            "uri":         uri,
-            "name":        first.get("name", ""),
-            "description": first.get("description", "")
-        }},
-        upsert=True
-    )
+    song_data = {
+        "name":       first.get("name", ""),
+        "artist":     first.get("artists", [{}])[0].get("name", ""),
+        "album":      first.get("album", {}).get("name", ""),
+        "uri":        first.get("uri", ""),
+        "preview_url": first.get("preview_url", ""),
+        "external_url": first.get("external_urls", {}).get("spotify", "")
+    }
 
-    return uri
+    collection = db[emotion.lower()]
+    collection.insert_one(song_data)
+
+    return song_data
 
 
 
