@@ -4,9 +4,19 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+        <title>VibeBeats</title>
     </head>
 
     <body>
+        <nav>
+            {% if current_user.is_authenticated %}
+              Logged in as {{ current_user.username }} |
+              <a href="{{ url_for('auth.logout') }}">Log Out</a>
+            {% else %}
+              <a href="{{ url_for('auth.login') }}">Log In</a> |
+              <a href="{{ url_for('auth.register') }}">Register</a>
+            {% endif %}
+        </nav>
         <div class="home-container">
             <div class="webcam">
                 <video id="video" autoplay playsinline></video>
