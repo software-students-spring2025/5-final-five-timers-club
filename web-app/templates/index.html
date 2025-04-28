@@ -11,6 +11,7 @@
         <nav>
             {% if current_user.is_authenticated %}
               Logged in as {{ current_user.username }} |
+              <a href="{{ url_for('my_songs') }}">My Songs</a> |
               <a href="{{ url_for('auth.logout') }}">Log Out</a>
             {% else %}
               <a href="{{ url_for('auth.login') }}">Log In</a> |
