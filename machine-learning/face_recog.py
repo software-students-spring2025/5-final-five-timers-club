@@ -26,14 +26,15 @@ def readb64(base64_string):
     """Decode base64 image to OpenCV format."""
     decoded_data = base64.b64decode(base64_string.split(",")[1])
     np_data = np.frombuffer(decoded_data, np.uint8)
-    return cv2.imdecode(np_data, cv2.IMREAD_COLOR)  
+    # pylint: disable=no-member
+    return cv2.imdecode(np_data, cv2.IMREAD_COLOR)
 
 
 def detect_emotion(base64_image):
     try:
         img = readb64(base64_image)
         result = DeepFace.analyze(img, actions=["emotion"], enforce_detection=False)
-        scores   = result[0]["emotion"]
+        scores = result[0]["emotion"]
         dominant = result[0]["dominant_emotion"]
         to_store = {
             "main_emotion": dominant,
@@ -88,7 +89,7 @@ def playlist():
 
     try:
         token = get_token()
-        song  = get_song_by_emotion(token, emotion)
+        song = get_song_by_emotion(token, emotion)
     except Exception as e:
         print("Spotify error:", e)
         return jsonify(error="Spotify request failed"), 500
