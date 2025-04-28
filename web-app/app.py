@@ -131,10 +131,6 @@ def my_songs():
     """Show playlists that were generated for a user"""
 
     users_emotions = list(emotion_db.find({"user_id": current_user.id}))
-
-    print(f"Found {len(users_emotions)} emotion records for user {current_user.id}")
-    print("Available collections:", db.list_collection_names())
-
     songs = []
 
     for i in users_emotions:
@@ -168,7 +164,7 @@ def my_songs():
                     }
                 )
             else:
-                # Add record even without a song
+                # add without song (remove this?)
                 i.append(
                     {
                         "emotion": emotion,
