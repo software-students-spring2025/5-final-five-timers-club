@@ -8,3 +8,5 @@ python-dotenv == 1.0.0
 numpy == 2.2.4
 requests == 2.31.0
 pytest
+Flask-Login>=0.6.2
+Werkzeug>=2.0

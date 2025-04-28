@@ -2,17 +2,35 @@
 Main Flask application
 Web app captures images, detects emotions, and recommends playlists that correlate to the emotion.
 """
-
 import os
 from flask import Flask, render_template, request, jsonify
 import requests
 from dotenv import load_dotenv
 from pymongo import MongoClient
+from flask_login import LoginManager, login_required, current_user
 
 load_dotenv()
 
 app = Flask(__name__)
 
+app.secret_key = os.getenv("SECRET_KEY", "supersecretkey")
+
+# flask-login setup
+login_manager = LoginManager(app)
+login_manager.login_view = "auth.login"
+
+from bson.objectid import ObjectId
+from auth import auth_bp, User
+
+# user loader callback
+@login_manager.user_loader
+def load_user(user_id):
+    return User.get(user_id)
+
+# register the auth blueprint
+app.register_blueprint(auth_bp)
+
+# db setup
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
 mongo_client = MongoClient(MONGO_URI)
 db = mongo_client["emotion_playlist"]
@@ -35,7 +53,7 @@ playlistName = ""  # emotion is stored here to be used in spotify API
 # sample home page
 @app.route("/", methods=["GET", "POST"])
 def home():
-    return render_template("index.html")
+    return render_template("index.html", user=current_user)
 
 
 @app.route("/submit-video", methods=["POST"])
@@ -50,6 +68,7 @@ def submit_video():
     # print("Received base64 image:", base64_img[:100])  #for debugging - print first 100 characters (don't log the entire string)
 
     try:
+        # call the ML microservice
         resp = requests.post(
             "http://localhost:6001/detect",
             json={"image": base64_img},
@@ -61,6 +80,7 @@ def submit_video():
 
         if emotion:
             emotion_record = {
+                "user_id": current_user.id,
                 "emotion": emotion,
                 "user_agent": request.headers.get("User-Agent"),
             }
@@ -103,3 +123,5 @@ def detect_emotion(base64_image):
         return None
     
 
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)
