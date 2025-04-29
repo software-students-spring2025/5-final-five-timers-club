@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  machine-learning:
+    build:
+      context: ./machine-learning
+    env_file:
+      - .env
+    ports:
+      - "6001:6001"
+
+  web-app:
+    build:
+      context: ./web-app
+    env_file:
+      - .env
+    depends_on:
+      - machine-learning
+    ports:
+      - "5001:5001" # macOS requires port 5001 for local access

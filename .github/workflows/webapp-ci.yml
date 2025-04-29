@@ -9,6 +9,8 @@ on:
 
 jobs:
   build-and-test:
+    env:
+      MONGO_URI: mongodb://localhost:27017/
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -18,13 +20,13 @@ jobs:
           python-version: '3.x'
       - name: Install dependencies
         working-directory: web-app
-        run: pip install -r requirements
+        run: pip install -r requirements.txt
       - name: Install test dependencies
         run: pip install pytest mongomock coverage
       - name: Run tests with coverage
         working-directory: web-app
         run: |
-          coverage run -m pytest --maxfail=1 --disable-warnings -q web-app/tests
+          coverage run -m pytest --maxfail=1 --disable-warnings -q tests
           coverage xml
       - name: Build Docker image
         run: |
@@ -37,12 +39,3 @@ jobs:
       - name: Push Docker image
         run: |
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/web-app:latest
-      - name: Deploy to DigitalOcean
-        if: secrets.DO_TOKEN && secrets.DO_APP_ID
-        uses: digitalocean/action-doctl@v2
-        with:
-          token: ${{ secrets.DO_TOKEN }}
-
-      - name: Update DO App Spec
-        if: secrets.DO_TOKEN && secrets.DO_APP_ID
-        run: doctl apps update ${{ secrets.DO_APP_ID }} --spec ./web-app/doapp.yaml
