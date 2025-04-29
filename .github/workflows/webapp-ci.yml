@@ -9,6 +9,8 @@ on:
 
 jobs:
   build-and-test:
+    env:
+      MONGO_URI: mongodb://localhost:27017/
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
