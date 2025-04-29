@@ -9,8 +9,9 @@ import requests
 from dotenv import load_dotenv
 from pymongo import MongoClient
 from flask_login import LoginManager, login_required, current_user
+import certifi
 
-#load_dotenv()
+# load_dotenv()
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "..", ".env"))
 
 app = Flask(__name__)
@@ -36,7 +37,7 @@ app.register_blueprint(auth_bp)
 
 # db setup
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
-mongo_client = MongoClient(MONGO_URI)
+mongo_client = MongoClient(MONGO_URI, tlsCAFile=certifi.where())
 db = mongo_client["emotion_playlist"]
 emotion_db = db["emotions"]
 playlist_db = db["playlists"]
