@@ -44,7 +44,7 @@ jobs:
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
         working-directory: machine-learning
-        run: pytest machine-learning/tests/
+        run: pytest tests/
 
       - name: Build Docker image
         run: |
