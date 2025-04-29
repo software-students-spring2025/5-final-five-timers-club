@@ -18,7 +18,9 @@ load_dotenv()
 auth_bp = Blueprint("auth", __name__)
 
 # mongo setup to store user's info
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
+MONGO_URI = os.getenv("MONGO_URI")
+if not MONGO_URI:
+    raise RuntimeError("MONGO_URI is not set! Check your .env file.")
 mongo_client = MongoClient(MONGO_URI)
 db = mongo_client["emotion_playlist"]
 users_coll = db["users"]
