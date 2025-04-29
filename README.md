@@ -33,6 +33,7 @@ Ensure the following tools are installed:
 
 ## 🗂️ Project Structure
 
+```
 .
 ├── web-app/ # Flask frontend
 │ ├── app.py # Main web app logic
@@ -45,6 +46,7 @@ Ensure the following tools are installed:
 │ ├── get_playlist.py # Spotify API integration
 │ └── requirements.txt # Requirements
 └── README.md # You are here
+```
 
 ## 🔐 Environment Configuration
 

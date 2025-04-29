@@ -27,7 +27,6 @@ mongo_client = MongoClient(MONGO_URI, tlsCAFile=certifi.where())
 db = mongo_client["emotion_playlist"]
 users_coll = db["users"]
 
-
 # Flask-Login user class
 class User(UserMixin):
     def __init__(self, user_dict):

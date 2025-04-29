@@ -9,12 +9,16 @@ import certifi
 # load_dotenv()
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "..", ".env"))
 
+
+uri = "mongodb+srv://<user>:<pw>@emotion-playlist.xth6wtd.mongodb.net/?retryWrites=true&w=majority&appName=emotion-playlist"
+# Create a new client and connect to the server
+client = MongoClient(uri)
+
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
-MONGO_URI = os.getenv("MONGO_URI")
-if not MONGO_URI:
-    raise RuntimeError("MONGO_URI is not set")
 
+
+MONGO_URI = os.getenv("MONGO_URI")
 mongo_client = MongoClient(MONGO_URI, tlsCAFile=certifi.where())
 db = mongo_client["emotion_playlist"]
 
