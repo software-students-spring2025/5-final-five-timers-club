@@ -1,0 +1,48 @@
+name: ML Client CI
+
+on:
+  push:
+    paths:
+      - 'machine-learning/**'
+    branches: [ main, master ]
+  pull_request:
+    paths:
+      - 'machine-learning/**'
+    branches: [ main, master ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      - name: Install dependencies
+        working-directory: machine-learning
+        run: |
+          pip install -r requirements.txt pytest
+      - name: Run tests
+        working-directory: machine-learning
+        run: pytest --maxfail=1 --disable-warnings -q
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/ml-client:latest machine-learning
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Push Docker image
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/ml-client:latest
+      - name: Deploy to DigitalOcean
+        if: secrets.DO_TOKEN && secrets.DO_APP_ID
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DO_TOKEN }}
+
+      - name: Update DO App Spec
+        if: secrets.DO_TOKEN && secrets.DO_APP_ID
+        run: doctl apps update ${{ secrets.DO_APP_ID }} --spec ./web-app/doapp.yaml

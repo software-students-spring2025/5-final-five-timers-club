@@ -1,0 +1,35 @@
+name: Lint — Python
+
+on:
+  push:
+    paths:
+      - 'machine-learning/**'
+      - 'web-app/**'
+    branches: [ main, master ]
+  pull_request:
+    paths:
+      - 'machine-learning/**'
+      - 'web-app/**'
+    branches: [ main, master ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install flake8
+        run: pip install flake8
+
+      - name: Lint ML Client
+        working-directory: machine-learning
+        run: flake8 .
+
+      - name: Lint Web App
+        working-directory: web-app
+        run: flake8 .
