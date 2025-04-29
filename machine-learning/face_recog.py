@@ -9,7 +9,8 @@ from get_playlist import get_song_by_emotion, get_token
 from pymongo import MongoClient
 from dotenv import load_dotenv
 
-load_dotenv()
+#load_dotenv()
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "..", ".env"))
 
 app = Flask(__name__)
 CORS(app)

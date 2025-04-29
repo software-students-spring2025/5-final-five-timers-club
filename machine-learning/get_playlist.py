@@ -4,7 +4,8 @@ from dotenv import load_dotenv
 from requests import post, get
 from pymongo import MongoClient
 
-load_dotenv()
+#load_dotenv()
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "..", ".env"))
 
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
