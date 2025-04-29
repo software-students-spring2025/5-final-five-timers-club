@@ -1,38 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-        <title>VibeBeats</title>
-    </head>
-
-    <body>
-        <nav>
-            {% if current_user.is_authenticated %}
-              Logged in as {{ current_user.username }} |
-              <a href="{{ url_for('my_songs') }}">My Songs</a> |
-              <a href="{{ url_for('auth.logout') }}">Log Out</a>
-            {% else %}
-              <a href="{{ url_for('auth.login') }}">Log In</a> |
-              <a href="{{ url_for('auth.register') }}">Register</a>
-            {% endif %}
-        </nav>
-        <div class="home-container">
-            <div class="webcam">
-                <video id="video" autoplay playsinline></video>
-                <div id="stopStart">
-                    <button id="startBtn">Start Webcam</button>
-                    <button id="stopBtn">Stop Webcam</button>
-                </div>
-            </div>
-
-            <div class="result">
-                <span id="result-box"></span>
-                <!-- Spotify player container -->
-                <div id="player"></div>
-            </div>
-        </div>
-        <script src="{{ url_for('static', filename='script.js') }}" defer></script>
-    </body>
-</html>
+{% extends "base.html" %}
+{% block title %}Emotify - Home{% endblock %}
+{% block content %}
+<div class="text-center">
+  <video id="video" class="img-fluid mb-3" style="max-width: 500px;" autoplay playsinline></video>
+  <div id="stopStart" class="mb-3">
+    <button id="startBtn" class="btn btn-primary me-2">Start Webcam</button>
+    <button id="stopBtn" class="btn btn-secondary">Stop Webcam</button>
+  </div>
+  <div id="result-box" class="mb-3"></div>
+  <div id="player"></div>
+</div>
+{% endblock %}
