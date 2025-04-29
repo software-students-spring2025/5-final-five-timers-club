@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 load_dotenv()
 MONGO_URI = os.getenv("MONGO_URI")
 if not MONGO_URI:
-    raise RuntimeError("MONGO_URI is not set! Check your .env file.")
+    raise RuntimeError("MONGO_URI is not set")
 mongo_client = MongoClient(MONGO_URI)
 db = mongo_client["emotion_playlist"]
 emotion_db = db["emotions"]
