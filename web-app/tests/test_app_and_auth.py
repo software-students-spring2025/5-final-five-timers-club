@@ -1,5 +1,6 @@
 from flask import url_for
 import pytest
+import json
 from werkzeug.security import generate_password_hash
 from unittest.mock import patch, MagicMock
 
@@ -69,3 +70,52 @@ def test_login_post_fail(client, monkeypatch):
         'username': 'x', 'password': 'y'
     }, follow_redirects=True)
     assert b'Invalid credentials' in resp.data
+
+# just a helper to log in a fake user 
+def login_user(client, monkeypatch):
+    fake = {
+        '_id': '1',
+        'username': 'u',
+        'password_hash': generate_password_hash('pw')
+    }
+    monkeypatch.setattr('auth.users_coll.find_one', lambda q: fake)
+    client.post('/login', data={'username':'u','password':'pw'})
+
+def test_logout(client, monkeypatch):
+    login_user(client, monkeypatch)
+    resp = client.get('/logout', follow_redirects=True)
+    assert b'You have been logged out' in resp.data
+
+def test_my_songs_empty(client, monkeypatch):
+    # with no emotion history should render the page
+    login_user(client, monkeypatch)
+    resp = client.get('/my-songs')
+    assert resp.status_code == 200
+    assert b'No results found' in resp.data or b'Your Songs' in resp.data
+
+@patch('app.db')
+def test_my_songs_with_data(mock_db, client, monkeypatch):
+    # should stub out one emotion record and one song
+    from app import emotion_db
+    monkeypatch.setattr('app.emotion_db.find', lambda q: [{'emotion':'happy'}])
+    mock_db.list_collection_names.return_value = ['happy']
+    mock_db.__getitem__().find_one.return_value = {
+        'name':'TestSong','artist':'Art','album':'Alb','uri':'u','external_url':'e'
+    }
+    login_user(client, monkeypatch)
+    resp = client.get('/my-songs')
+    assert b'TestSong' in resp.data
+    assert b'Art' in resp.data
+
+@patch('app.requests.post')
+def test_submit_video_success(mock_post, client, monkeypatch):
+    class DummyResp:
+        def __init__(self): self.status_code=200
+        def raise_for_status(self): pass
+        def json(self): return {'emotion':'happy','emoji':'😊'}
+    mock_post.return_value = DummyResp()
+    login_user(client, monkeypatch)
+    resp = client.post('/submit-video', json={'image':'data:foo'})
+    data = json.loads(resp.data)
+    assert resp.status_code == 200
+    assert data['emotion']=='happy'
