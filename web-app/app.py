@@ -39,10 +39,10 @@ mongo_client = MongoClient(MONGO_URI)
 db = mongo_client["emotion_playlist"]
 emotion_db = db["emotions"]
 playlist_db = db["playlists"]
+users_coll = db["users"]
 
 DEFAULT_EMOTION_DATA = {
     "angry": "😡",
-    "disgust": "🤢",
     "fear": "😖",
     "happy": "😂",
     "neutral": "😑",
@@ -99,7 +99,6 @@ def submit_video():
         "surprise": "😮",
         "neutral": "😐",
         "fear": "😨",
-        "disgust": "🤢",
     }
 
     if emotion:

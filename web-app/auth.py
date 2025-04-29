@@ -12,6 +12,7 @@ from pymongo import MongoClient
 import os
 from dotenv import load_dotenv
 from bson.objectid import ObjectId
+import certifi
 
 load_dotenv()
 
@@ -22,7 +23,6 @@ MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
 mongo_client = MongoClient(MONGO_URI)
 db = mongo_client["emotion_playlist"]
 users_coll = db["users"]
-
 
 # Flask-Login user class
 class User(UserMixin):
