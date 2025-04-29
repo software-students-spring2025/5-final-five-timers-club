@@ -1,3 +1,7 @@
+
+![Web-App CI/CD](https://github.com/software-students-spring2025/5-final-five-timers-club/actions/workflows/web-cicd.yml/badge.svg?branch=)
+![ML-Client CI/CD](https://github.com/software-students-spring2025/5-final-five-timers-club/actions/workflows/ml-cicd.yml/badge.svg?branch=)
+
 # Emotify: Emotion Detection and Music Recommendation
 
 This project is an application that detects a user's emotions from their facial expressions and recommends music based on their expression. The system processes webcam images to identify emotions and uses Spotify's API to play songs that match the detected emotion.
@@ -27,6 +31,7 @@ Ensure the following tools are installed:
 
 ## 🗂️ Project Structure
 
+```
 .
 ├── web-app/ # Flask frontend
 │ ├── app.py # Main web app logic
@@ -39,6 +44,7 @@ Ensure the following tools are installed:
 │ ├── get_playlist.py # Spotify API integration
 │ └── requirements.txt # Requirements
 └── README.md # You are here
+```
 
 ## 🔐 Environment Configuration
 

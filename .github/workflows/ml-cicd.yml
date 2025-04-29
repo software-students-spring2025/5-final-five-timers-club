@@ -1,0 +1,41 @@
+name: ML Client CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'machine-learning/**'
+      - 'ai.py'
+      - 'requirements.txt'
+      - '.github/workflows/ml-cicd.yml'
+  
+  pull_request:
+    branches: [main]
+    paths:
+      - 'machine-learning/**'
+      - '.github/workflows/ml-cicd.yml'
+      
+jobs:
+  docker-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Create .env file
+        run: |
+          echo "FLASK_ENV=development" >> .env
+          echo "FLASK_PORT=5000" >> .env
+          echo "DEBUG=True" >> .env
+          echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> .env
+          echo "MONGO_DBNAME=${{ secrets.MONGO_DBNAME }}" >> .env
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
+
+      - name: Wait for ML client to be ready
+        run: |
+          echo "Waiting for ML client to start..."
+          until curl -s http://localhost:6000 || [ $SECONDS -ge 60 ]; do sleep 2; done
