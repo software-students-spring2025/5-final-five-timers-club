@@ -7,7 +7,6 @@ on:
       - master
       - fixes
       - feature/**
-      
     paths: 
       - machine-learning-client/**'
       - 'face_recog.py'
