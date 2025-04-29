@@ -9,6 +9,7 @@ from get_playlist import get_song_by_emotion, get_token
 from pymongo import MongoClient
 from dotenv import load_dotenv
 
+<<<<<<< HEAD
 #load_dotenv()
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "..", ".env"))
 
@@ -16,10 +17,19 @@ app = Flask(__name__)
 CORS(app)
 
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
+=======
+load_dotenv()
+MONGO_URI = os.getenv("MONGO_URI")
+if not MONGO_URI:
+    raise RuntimeError("MONGO_URI is not set")
+>>>>>>> a1d3ca9fbe167c8ff242f9e6a710f9c7a62fde09
 mongo_client = MongoClient(MONGO_URI)
 db = mongo_client["emotion_playlist"]
 emotion_db = db["emotions"]
 model = db["results"]
+
+app = Flask(__name__)
+CORS(app)
 
 
 # functions
@@ -62,8 +72,19 @@ def detect():
     emotion = detect_emotion(base64_image)
     print("Detected emotion:", emotion)
 
+    DEFAULT_EMOTION_DATA = {
+        "happy": "😊",
+        "sad": "😢",
+        "angry": "😠",
+        "surprise": "😮",
+        "neutral": "😐",
+        "fear": "😨",
+        "disgust": "🤢",
+    }
+
     if emotion:
-        return jsonify({"emotion": emotion})
+        emoji = DEFAULT_EMOTION_DATA.get(emotion, "😐")
+        return jsonify({"emotion": emotion, "emoji": emoji})
     return jsonify({"error": "Could not detect emotion"}), 400
 
 
