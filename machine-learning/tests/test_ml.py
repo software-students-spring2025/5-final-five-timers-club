@@ -33,33 +33,31 @@ def test_b64():
     image = np.zeros((10, 10, 3), dtype=np.uint8)
     # pylint: disable=no-member
     _, buffer = cv2.imencode(".jpg", image)
-    b64 = base64.b64encode(buffer).decode("utf-8")
-    result = "data:image/jpeg;base64," + b64
-    return result
+    return f"data:image/jpeg;base64,{base64.b64encode(buffer).decode('utf-8')}"
 
 
 def test_readb64(test_b64):
     """Test decoding base64 string"""
     output = readb64(test_b64)
     assert output is not None
+    assert len(output) > 0
     assert output.shape == (10, 10, 3)
 
 
 @patch("face_recog.DeepFace.analyze")
 @patch("face_recog.model.insert_one")
-def test_detect_emotion_success(db, deepface, test_b64):
+def test_emotion_success(db, deepface, test_b64):
     """TEst detecting emotion"""
     deepface.return_value = [{"emotion": {"happy": 0.9}, "dominant_emotion": "happy"}]
 
     result = detect_emotion(test_b64)
-
     assert result == "happy"
     deepface.assert_called_once()
     db.assert_called_once()
 
 
 @patch("face_recog.DeepFace.analyze")
-def test_detect_emotion_fail(deepface, test_b64):
+def test_emotion_fail(deepface, test_b64):
     """Test error handling when detecting emotions"""
     deepface.side_effect = Exception("Test error")
     result = detect_emotion(test_b64)
@@ -78,7 +76,7 @@ def test_endpoints(detect, client, test_b64):
     assert data["emotion"] == "happy"
 
 
-def test_detect_endpoint_fail(client):
+def test_endpoint_fail(client):
     """Test detecting endpoint when there is no image"""
     resp = client.post("/detect", json={})
 
@@ -89,7 +87,7 @@ def test_detect_endpoint_fail(client):
 
 # need to mock get function
 @patch("face_recog.get_token")
-def test_token_endpoint(token, client):
+def test_token(token, client):
     """Tests endpoint that gives token"""
     token.return_value = "test-token"
 
@@ -98,26 +96,6 @@ def test_token_endpoint(token, client):
     assert resp.status_code == 200
     output = json.loads(resp.data)
     assert output["token"] == "test-token"
-
-
-@patch("face_recog.detect_emotion")
-@patch("face_recog.get_token")
-@patch("face_recog.get_song_by_emotion")
-def test_playlist_endpoint(get_song, token, detect, client, test_b64):
-    """Test endpoint for emotion detection and music rec"""
-    detect.return_value = "happy"
-    token.return_value = "test-token"
-    get_song.return_value = {
-        "name": "Happy",
-        "artist": "Test Artist",
-        "_id": "1",
-    }
-
-    response = client.post("/playlist", json={"image": test_b64})
-    output = json.loads(response.data)
-    assert response.status_code == 200
-    assert output["emotion"] == "happy"
-    assert output["song"]["name"] == "Happy"
 
 
 @patch("get_playlist.post")
@@ -131,6 +109,27 @@ def test_get_token(mock_post):
     res = get_token()
 
     assert res == "test-token"
+
+
+@patch("face_recog.detect_emotion")
+@patch("face_recog.get_token")
+@patch("face_recog.get_song_by_emotion")
+def test_playlist(get_song, token, detect, client, test_b64):
+    """Test endpoint for emotion detection and music rec"""
+    detect.return_value = "happy"
+    token.return_value = "test-token"
+    get_song.return_value = {
+        "name": "Happy",
+        "artist": "Test Artist",
+        "_id": "1",
+    }
+
+    response = client.post("/playlist", json={"image": test_b64})
+
+    output = json.loads(response.data)
+    assert response.status_code == 200
+    assert output["emotion"] == "happy"
+    assert output["song"]["name"] == "Happy"
 
 
 @patch("get_playlist.get")
@@ -161,6 +160,8 @@ def test_get_song_success(db, mock_get):
 
     assert result is not None
     assert result["name"] == "Happy"
+    assert "artist" in result
+    assert result["artist"] == "Test Artist"
 
 
 @patch("get_playlist.get")
