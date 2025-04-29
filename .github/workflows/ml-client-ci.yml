@@ -14,7 +14,6 @@ on:
       - 'requirements.txt'
       - '.github/workflows/ml-client-ci.yml'
 
-      
   pull_request:
     branches:
       - main
