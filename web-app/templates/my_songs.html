@@ -1,53 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-        <title>Emotify - My Songs</title>
-    </head>
-    <body>
-        <nav>
-            {% if current_user.is_authenticated %}
-              Logged in as {{ current_user.username }} |
-              <a href="{{ url_for('auth.logout') }}">Log Out</a> |
-              <a href="{{ url_for('home') }}">Home</a>
+{% extends "base.html" %}
+{% block title %}Emotify - My Songs{% endblock %}
+{% block content %}
+<h1 class="mb-4">Your Songs</h1>
+{% if not songs %}
+  <p>No results found.</p>
+{% else %}
+  <div class="row">
+    {% for item in songs %}
+      <div class="col-md-6 mb-4">
+        <div class="card h-100">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span>{{ item.emotion|capitalize }} {{ item.emoji }}</span>
+          </div>
+          <div class="card-body">
+            {% if item.song %}
+              <h5 class="card-title">{{ item.song.name }}</h5>
+              <p class="card-text">Artist: {{ item.song.artist }}</p>
+              <p class="card-text">Album: {{ item.song.album }}</p>
+              <a href="{{ item.song.external_url }}" target="_blank" class="btn btn-success">Open in Spotify</a>
             {% else %}
-              <a href="{{ url_for('auth.login') }}">Log In</a> |
-              <a href="{{ url_for('auth.register') }}">Register</a>
+              <p class="card-text">No song found for this emotion.</p>
             {% endif %}
-        </nav>
-        
-        <div class="song-container">
-            <h1>Your Songs</h1>
-            
-            {% if not songs %}
-                <p>No results found.</p>
-            {% else %}
-                <div class="song-list">
-                    {% for item in songs %}
-                        <div class="song-item">
-                            <div class="emotion-info">
-                                <h3>{{ item.emotion|capitalize }} {{ item.emoji }}</h3>
-                            </div>
-                            
-                            {% if item.song %}
-                                <div class="song-info">
-                                    <h4>{{ item.song.name }}</h4>
-                                    <p>Artist: {{ item.song.artist }}</p>
-                                    <p>Album: {{ item.song.album }}</p>
-                                    
-                                    <a href="{{ item.song.external_url }}" target="_blank" class="spotify-link">
-                                        Open in Spotify
-                                    </a>
-                                </div>
-                            {% else %}
-                                <p>No song found for this emotion</p>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
+          </div>
         </div>
-    </body>
-</html>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+{% endblock %}
