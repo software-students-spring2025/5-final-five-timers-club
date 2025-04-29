@@ -61,7 +61,6 @@ def get_song_by_emotion(token, emotion):
     collection = db[emotion.lower()]
     result = collection.insert_one(song_data)
 
-    # convert the ObjectId to string
     song_copy = song_data.copy()
     song_copy["_id"] = str(result.inserted_id)
 
