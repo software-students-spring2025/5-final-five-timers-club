@@ -8,6 +8,7 @@ import numpy as np
 from get_playlist import get_song_by_emotion, get_token
 from pymongo import MongoClient
 from dotenv import load_dotenv
+import certifi
 
 #load_dotenv()
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "..", ".env"))
@@ -15,7 +16,7 @@ MONGO_URI = os.getenv("MONGO_URI")
 if not MONGO_URI:
     raise RuntimeError("MONGO_URI is not set")
 mongo_client = MongoClient(MONGO_URI)
-db = mongo_client["emotion_playlist"]
+db = mongo_client["emotion-playlist"]
 emotion_db = db["emotions"]
 model = db["results"]
 

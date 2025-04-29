@@ -9,6 +9,7 @@ import requests
 from dotenv import load_dotenv
 from pymongo import MongoClient
 from flask_login import LoginManager, login_required, current_user
+import certifi
 
 #load_dotenv()
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "..", ".env"))
