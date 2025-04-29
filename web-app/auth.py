@@ -12,6 +12,7 @@ from pymongo import MongoClient
 import os
 from dotenv import load_dotenv
 from bson.objectid import ObjectId
+import certifi
 
 # load_dotenv()
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "..", ".env"))
@@ -22,7 +23,7 @@ auth_bp = Blueprint("auth", __name__)
 MONGO_URI = os.getenv("MONGO_URI")
 if not MONGO_URI:
     raise RuntimeError("MONGO_URI is not set")
-mongo_client = MongoClient(MONGO_URI)
+mongo_client = MongoClient(MONGO_URI, tlsCAFile=certifi.where())
 db = mongo_client["emotion_playlist"]
 users_coll = db["users"]
 
