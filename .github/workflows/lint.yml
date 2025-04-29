@@ -27,6 +27,4 @@ jobs:
 
       - name: Lint Web App
         working-directory: web-app
-        run: flake8 . \
-          --max-line-length=110 \
-          --ignore=E501,F401,F841,E402,E401,E302,W391
+        run: flake8 . --max-line-length=110 --ignore=E501,F401,F841,E402,E401,E302,W391
