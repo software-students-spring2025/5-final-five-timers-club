@@ -2,12 +2,8 @@ name: ML Client CI
 
 on:
   push:
-    paths:
-      - 'machine-learning/**'
     branches: [ main, master ]
   pull_request:
-    paths:
-      - 'machine-learning/**'
     branches: [ main, master ]
 
 jobs:
