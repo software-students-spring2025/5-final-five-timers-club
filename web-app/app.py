@@ -76,7 +76,9 @@ def submit_video():
     try:
         # call the ML microservice
         resp = requests.post(
-            "http://localhost:6001/detect", json={"image": base64_img}, timeout=10
+            "http://machine-learning:6001/detect",
+            json={"image": base64_img},
+            timeout=10,
         )
         resp.raise_for_status()
         emotion = resp.json().get("emotion")
@@ -117,7 +119,9 @@ def detect_emotion(base64_image):
     """Detect emotion by sending base64 image to the ML client."""
     try:
         response = requests.post(
-            "http://localhost:6001/detect", json={"image": base64_image}, timeout=10
+            "http://machine-learning:6001/detect",
+            json={"image": base64_image},
+            timeout=10,
         )
         response.raise_for_status()
         playlistName = response.json().get("emotion")
@@ -142,7 +146,9 @@ def my_songs():
 
             collection_name = emotion.lower()
             if collection_name in db.list_collection_names():
-                song = db[collection_name].find_one()
+                song = db[collection_name].find_one(
+                    sort=[("_id", -1)]
+                )  # Get most recent song
             else:
                 song = None
 
