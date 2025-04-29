@@ -136,20 +136,12 @@ def my_songs():
     for i in users_emotions:
         emotion = i.get("emotion")
 
-        print(f"Processing emotion record: {emotion}")
-
         if emotion:
-            # Try to get the most recent song for this emotion
-            try:
-                collection_name = emotion.lower()
-                if collection_name in db.list_collection_names():
-                    song = db[collection_name].find_one()
-                    print(f"Found song for {emotion}: {song}")
-                else:
-                    print(f"No collection found for emotion: {emotion}")
-                    song = None
-            except Exception as e:
-                print(f"Error fetching song for {emotion}: {e}")
+
+            collection_name = emotion.lower()
+            if collection_name in db.list_collection_names():
+                song = db[collection_name].find_one()
+            else:
                 song = None
 
             if song:
