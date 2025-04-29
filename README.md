@@ -176,7 +176,7 @@ The web app provides the following routes:
 
    ```
    git clone https://github.com/software-students-spring2025/5-final-five-timers-club.git
-   cd emotion-playlist
+   cd 5-final-five-timers-club
    ```
 
 2. Create environment variables file:
