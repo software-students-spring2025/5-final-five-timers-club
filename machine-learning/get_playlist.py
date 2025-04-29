@@ -6,12 +6,12 @@ from pymongo import MongoClient
 
 load_dotenv()
 
-CLIENT_ID     = os.getenv("CLIENT_ID")
+CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
-MONGO_URI     = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
 
 mongo_client = MongoClient(MONGO_URI)
-db           = mongo_client["emotion_playlist"]
+db = mongo_client["emotion_playlist"]
 
 
 def get_token():
@@ -22,9 +22,9 @@ def get_token():
         "https://accounts.spotify.com/api/token",
         headers={
             "Authorization": f"Basic {auth_b64}",
-            "Content-Type":  "application/x-www-form-urlencoded"
+            "Content-Type": "application/x-www-form-urlencoded",
         },
-        data={"grant_type": "client_credentials"}
+        data={"grant_type": "client_credentials"},
     )
     resp.raise_for_status()
     return resp.json()["access_token"]
@@ -32,13 +32,9 @@ def get_token():
 
 def get_song_by_emotion(token, emotion):
     """Search Spotify for a song matching the given emotion, return its data, and store it in the database."""
-    url     = "https://api.spotify.com/v1/search"
+    url = "https://api.spotify.com/v1/search"
     headers = {"Authorization": f"Bearer {token}"}
-    params  = {
-        "q": emotion,
-        "type": "track",
-        "limit": 5
-    }
+    params = {"q": emotion, "type": "track", "limit": 5}
 
     resp = get(url, headers=headers, params=params)
     resp.raise_for_status()
@@ -54,18 +50,18 @@ def get_song_by_emotion(token, emotion):
     first = items[0]
 
     song_data = {
-        "name":       first.get("name", ""),
-        "artist":     first.get("artists", [{}])[0].get("name", ""),
-        "album":      first.get("album", {}).get("name", ""),
-        "uri":        first.get("uri", ""),
+        "name": first.get("name", ""),
+        "artist": first.get("artists", [{}])[0].get("name", ""),
+        "album": first.get("album", {}).get("name", ""),
+        "uri": first.get("uri", ""),
         "preview_url": first.get("preview_url", ""),
-        "external_url": first.get("external_urls", {}).get("spotify", "")
+        "external_url": first.get("external_urls", {}).get("spotify", ""),
     }
 
     collection = db[emotion.lower()]
-    collection.insert_one(song_data)
+    result = collection.insert_one(song_data)
 
-    return song_data
+    song_copy = song_data.copy()
+    song_copy["_id"] = str(result.inserted_id)
 
-
-
+    return song_copy
