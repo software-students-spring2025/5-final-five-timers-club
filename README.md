@@ -1,5 +1,10 @@
 # Emotify: Emotion Detection and Music Recommendation
 
+[![ML Client CI](https://github.com/<your-org>/<repo>/actions/workflows/ml-client-ci.yml/badge.svg)](https://github.com/<your-org>/<repo>/actions/workflows/ml-client-ci.yml)
+[![Web App CI](https://github.com/<your-org>/<repo>/actions/workflows/webapp-ci.yml/badge.svg)](https://github.com/<your-org>/<repo>/actions/workflows/webapp-ci.yml)
+
+## Description
+
 This project is an application that detects a user's emotions from their facial expressions and recommends music based on their expression. The system processes webcam images to identify emotions and uses Spotify's API to play songs that match the detected emotion.
 
 ## Team Members
