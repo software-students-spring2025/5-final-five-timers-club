@@ -1,8 +1,3 @@
-"""
-Main Flask application
-Web app captures images, detects emotions, and recommends playlists that correlate to the emotion.
-"""
-
 import os
 from flask import Flask, render_template, request, jsonify, redirect, url_for
 import requests
@@ -10,6 +5,12 @@ from dotenv import load_dotenv
 from pymongo import MongoClient
 from flask_login import LoginManager, login_required, current_user
 import certifi
+
+"""
+Main Flask application
+Web app captures images, detects emotions, 
+and recommends playlists that correlate to the emotion.
+"""
 
 # load_dotenv()
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "..", ".env"))
@@ -71,7 +72,8 @@ def submit_video():
     if not base64_img:
         return jsonify({"error": "No image provided"}), 400
 
-    # print("Received base64 image:", base64_img[:100])  #for debugging - print first 100 characters (don't log the entire string)
+    # print("Received base64 image:", base64_img[:100])
+    # #for debugging - print first 100 characters (don't log the entire string)
 
     try:
         # call the ML microservice

@@ -1,5 +1,3 @@
-"""Unit Testing for Machine Learning Client"""
-
 import json
 import base64
 import sys
@@ -8,6 +6,8 @@ from unittest.mock import patch, MagicMock
 import pytest
 import numpy as np
 import cv2
+
+"""Unit Testing for Machine Learning Client"""
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 

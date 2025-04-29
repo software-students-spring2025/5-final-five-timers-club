@@ -36,7 +36,8 @@ def get_token():
 
 
 def get_song_by_emotion(token, emotion):
-    """Search Spotify for a song matching the given emotion, return its data, and store it in the database."""
+    """Search Spotify for a song matching the given emotion,
+    return its data, and store it in the database."""
     url = "https://api.spotify.com/v1/search"
     headers = {"Authorization": f"Bearer {token}"}
     params = {"q": emotion, "type": "track", "limit": 5}
