@@ -41,8 +41,11 @@ jobs:
         run: |
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/web-app:latest
       - name: Deploy to DigitalOcean
+        if: secrets.DO_TOKEN && secrets.DO_APP_ID
         uses: digitalocean/action-doctl@v2
         with:
           token: ${{ secrets.DO_TOKEN }}
+
       - name: Update DO App Spec
+        if: secrets.DO_TOKEN && secrets.DO_APP_ID
         run: doctl apps update ${{ secrets.DO_APP_ID }} --spec ./web-app/doapp.yaml

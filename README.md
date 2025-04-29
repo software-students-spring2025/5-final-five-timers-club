@@ -1,5 +1,5 @@
 ![Lint-free](https://github.com/software-students-spring2025/5-final-five-timers-club/actions/workflows/lint.yml/badge.svg)
-![Machine Learning Client CI](https://github.com/software-students-spring2025/5-final-five-timers-club/actions/workflows/ml-client.yml/badge.svg?branch=main)
+![ML Client CI](https://github.com/software-students-spring2025/5-final-five-timers-club/actions/workflows/ml-client.yml/badge.svg?branch=main)
 ![Web-app CI](https://github.com/software-students-spring2025/5-final-five-timers-club/actions/workflows/web-app.yml/badge.svg?branch=main) 
 
 # Emotify: Emotion Detection and Music Recommendation
