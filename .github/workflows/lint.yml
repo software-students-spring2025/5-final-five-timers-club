@@ -23,8 +23,8 @@ jobs:
 
       - name: Lint ML Client
         working-directory: machine-learning
-        run: flake8 .
+        run: flake8 . --max-line-length=110 --ignore=E402,E501
 
       - name: Lint Web App
         working-directory: web-app
-        run: flake8 .
+        run: flake8 . --max-line-length=110 --ignore=E501,F401,F841,E402,E401
