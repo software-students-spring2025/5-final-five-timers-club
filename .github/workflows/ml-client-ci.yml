@@ -5,7 +5,7 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
-
+  workflow_dispatch:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
@@ -33,12 +33,3 @@ jobs:
       - name: Push Docker image
         run: |
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/ml-client:latest
-      - name: Deploy to DigitalOcean
-        if: secrets.DO_TOKEN && secrets.DO_APP_ID
-        uses: digitalocean/action-doctl@v2
-        with:
-          token: ${{ secrets.DO_TOKEN }}
-
-      - name: Update DO App Spec
-        if: secrets.DO_TOKEN && secrets.DO_APP_ID
-        run: doctl apps update ${{ secrets.DO_APP_ID }} --spec ./web-app/doapp.yaml
