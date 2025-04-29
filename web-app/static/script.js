@@ -31,7 +31,7 @@ stopBtn.addEventListener("click", () => {
 async function captureAndSendImage(videoEl) {
   if (!videoEl.videoWidth) return;
 
-  // grabbing frame
+  // Grabbing frame from the video element
   const canvas = document.createElement("canvas");
   canvas.width  = videoEl.videoWidth;
   canvas.height = videoEl.videoHeight;
@@ -39,8 +39,8 @@ async function captureAndSendImage(videoEl) {
   const imgBase64 = canvas.toDataURL("image/jpeg");
 
   try {
-    // sending web-app to detect emotion + emoji
-    const res  = await fetch("/submit-video", {
+    // Sending the image for emotion and emoji detection
+    const res = await fetch("/submit-video", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ image: imgBase64 })
@@ -52,46 +52,52 @@ async function captureAndSendImage(videoEl) {
       return;
     }
 
-    // showing detected emoji + text
+    // Displaying the detected emoji and emotion
     resultBox.innerHTML = `
       <span style="font-size:8rem">${data.emoji}</span>
       <p>Detected: ${data.emotion}</p>
     `;
 
-    // on the very first time stop polling and fetch playlist!
+    // On the very first time, stop polling and fetch the playlist
     if (firstEmotion) {
       firstEmotion = false;
       clearInterval(captureInterval);
 
-      // getting a client-credentials token for Web Playback SDK
+      // Getting a client-credentials token for Web Playback SDK
       const tkRes = await fetch(`${ML_BASE}/token`);
       const { token } = await tkRes.json();
 
-      // getting the playlist URI for this emotion
+      console.log("Spotify Token:", token); // debug
+
+      // Getting the playlist URI for this emotion
       const plRes = await fetch(`${ML_BASE}/playlist`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ image: imgBase64 })
       });
 
-      // checking for HTTP errors first!
+      // Checking for HTTP errors first!
       if (!plRes.ok) {
         console.error("❌ /playlist failed:", plRes.status, await plRes.json());
         return;
       }
 
-      // now safely parsing and pulling out playlist_uri
-      const plData      = await plRes.json();
-      const playlist_uri = plData.playlist_uri;
-      if (!playlist_uri) {
-        console.warn("⚠️ no playlist_uri in /playlist response", plData);
+      // Safely parsing and pulling out playlist_uri
+      const plData = await plRes.json();
+      console.log("Playlist Data:", plData);
+      if (!plData.song || !plData.song.uri) {
+        console.warn("⚠️ No playlist_uri in /playlist response", plData);
         return;
       }
 
-      // “open.spotify.com/embed” fallback
+      const playlist_uri = plData.song.uri;
+      console.log("Song URI:", playlist_uri);
+
+      // Generating the embed URL for the playlist
       const embedUri = playlist_uri
         .replace(/:/g, "/")
         .replace(/^spotify/, "open.spotify.com/embed");
+      console.log("Embed URI:", embedUri);
       playerEl.innerHTML = `
         <iframe
           src="https://${embedUri}"
@@ -99,12 +105,13 @@ async function captureAndSendImage(videoEl) {
           allow="encrypted-media">
         </iframe>`;
 
-      // initializing the Web Playback SDK to actually playyyyy
+      // Initializing the Web Playback SDK to actually play the playlist
       const initPlayer = () => {
         const player = new Spotify.Player({
           name: "Emotion DJ",
           getOAuthToken: cb => cb(token)
         });
+
         player.connect().then(_ => {
           player._options.getOAuthToken(access_token => {
             fetch("https://api.spotify.com/v1/me/player/play", {
@@ -119,12 +126,16 @@ async function captureAndSendImage(videoEl) {
         });
       };
 
+      // Loading the Spotify Web Playback SDK script if not already loaded
       if (window.Spotify && Spotify.Player) {
         initPlayer();
       } else {
         const tag = document.createElement("script");
         tag.src   = "https://sdk.scdn.co/spotify-player.js";
-        tag.onload = initPlayer;
+        tag.onload = () => {
+          console.log("Spotify Player SDK loaded");  // Debugging SDK load
+          initPlayer();
+        };
         document.head.appendChild(tag);
       }
     }
@@ -134,6 +145,3 @@ async function captureAndSendImage(videoEl) {
     resultBox.textContent = "Error detecting emotion 😕";
   }
 }
-
-
-
