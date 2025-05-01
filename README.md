@@ -39,134 +39,29 @@ Ensure the following tools are installed:
 ├── web-app/ # Flask frontend
 │ ├── app.py # Main web app logic
 │ ├── auth.py # User authentication
-│ ├── requirements.txt # Requirements
+│ ├── requirements.txt
 │ ├── templates/ # HTML templates
+│ ├── Dockerfile
 │ └── static/ # CSS and JavaScript
 ├── machine-learning/ # Emotion detection service
 │ ├── face_recog.py # Facial emotion detection
 │ ├── get_playlist.py # Spotify API integration
-│ └── requirements.txt # Requirements
+│ └── requirements.txt
+│ ├── Dockerfile
 └── README.md # You are here
+└── docker-compose.yml
 ```
 
 ## 🔐 Environment Configuration
 
 Create a `.env` file in your project root folder with the following variables:
 
-## Running the Project
-
-The README has already been created as a Markdown file that you can copy and paste with all the formatting intact. Here is the complete Markdown content:
-markdown# Emotion Playlist
-
-The Emotion Playlist project consists of two main microservices:
-
-1. **Web Application Service (Flask)**: A Python-based web application built with Flask that handles user authentication, emotion history, and provides the web interface for users to interact with the application.
-
-2. **Machine Learning Service**: A specialized service that handles face detection, emotion recognition using DeepFace, and Spotify API integration to recommend songs based on detected emotions.
-
-## Setup Instructions
-
-### Prerequisites
-
-- Docker and Docker Compose
-- Git
-- Spotify Developer account (for API credentials)
-- MongoDB account (for database storage)
-
-### Installation Steps
-
-1. Clone the repository:
-
-   ```bash
-   git clone https://github.com/software-students-spring2025/5-final-five-timers-club
-   cd 5-final-five-timers-club
-   ```
-
-2. Create environment variables file:
-
-   ```bash
-   cp .env.example .env
-   ```
-
-3. Edit the `.env` file with your specific configuration if needed.
-
-4. Start the application with Docker Compose:
-
-   ```bash
-   docker-compose up -d
-   ```
-
-5. The application will be running at http://127.0.0.1:6001
-
-## Environment Configuration
-
-The application requires the following environment variables, which can be set in the `.env` file:
-
-- `CLIENT_ID`: Your Spotify API client ID
-- `CLIENT_SECRET`: Your Spotify API client secret
-- `MONGO_URI`: MongoDB connection URI (default: mongodb://localhost:27017/emotion_playlist)
-- `SECRET_KEY`: Secret key for Flask session encryption
-
-## Database Configuration
-
-The application uses MongoDB to store:
-
-- User account information
-- Detected emotions history
-- Recommended songs for each emotion
-
-The database is automatically initialized when the application starts.
-
-## Application Structure
-
-The project is organized into two main services, each with its own Dockerfile:
-
-### 1. Machine Learning Service (./machine-learning)
-
-- Face recognition and emotion detection using DeepFace
-- Spotify API integration for song recommendations
-- REST API endpoints for emotion detection and song retrieval
-- Accessible at http://127.0.0.1:6001
-
-### 2. Web Application Service (./web-app)
-
-- User authentication and session management
-- Webcam capture and processing
-- Emotion and song history display
-- User interface for interacting with the system
-- Accessible at http://127.0.0.1:5001
-
-## API Documentation
-
-The machine learning service provides the following API endpoints:
-
-**Emotion Detection**
-
-- `POST /detect`: Analyze a base64-encoded image and return the detected emotion
-
-**Spotify Integration**
-
-- `GET /token`: Retrieve a Spotify API token
-- `POST /playlist`: Get a song recommendation based on detected emotion
-
-The web app provides the following routes:
-
-**User Interface**
-
-- `GET /`: Home page with webcam capture
-- `GET /my-songs`: View history of emotions and recommended songs
-
-**Authentication**
-
-- `GET /login`: Login page
-- `POST /login`: Process login
-- `GET /register`: Registration page
-- `POST /register`: Process registration
-- `GET /logout`: Logout
-
-**API Endpoints**
-
-- `POST /submit-video`: Process webcam capture for emotion detection
+```
+CLIENT_ID=your_client_ID
+CLIENT_SECRET=your_client_secret
+MONGO_URI=mongodb+srv://username:password@cluster.example.mongodb.net/?retryWrites=true&w=majority
+SECRET_KEY=your_secret_key
+```
 
 ## Development Setup
 
@@ -187,10 +82,25 @@ The web app provides the following routes:
 4. Build and start the containers using Docker Compose:
    docker-compose up -d --build
 
-5. The application will be running at http://127.0.0.1:6001
+5. The application will be running at http://127.0.0.1:5001
 
 6. To stop the containers:
    docker-compose down
+
+## Running Unit Tests
+
+Make sure to install pytest
+
+```
+pip install pytest
+cd web-app
+pytest tests
+```
+
+```
+cd machine-learning
+pytest tests
+```
 
 ## Features
 
