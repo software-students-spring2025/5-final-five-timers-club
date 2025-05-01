@@ -2,17 +2,9 @@ name: Web App CI/CD
 
 on:
   push:
-    branches:
-      - main
-      - master
-      - fixes
-      - feature/**
+    branches: [ main, master ]
   pull_request:
-    branches:
-      - main
-      - master
-      - fixes
-      - feature/**
+    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
@@ -59,4 +51,3 @@ jobs:
             git pull origin main
             docker-compose down
             docker-compose up --build -d
-            

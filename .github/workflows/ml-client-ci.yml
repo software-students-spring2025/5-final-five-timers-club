@@ -2,11 +2,7 @@ name: ML Client CI/CD
 
 on:
   push:
-    branches:
-      - main
-      - master
-      - fixes
-      - feature/**
+    branches: [ main, master ]
     paths: 
       - machine-learning-client/**'
       - 'face_recog.py'
@@ -15,11 +11,7 @@ on:
       - '.github/workflows/ml-client-ci.yml'
 
   pull_request:
-    branches:
-      - main
-      - master
-      - fixes
-      - feature/**
+    branches: [ main, master ]
     paths:
       - 'machine-learning-client/**'
       - '.github/workflows/ml-client-ci.yml'

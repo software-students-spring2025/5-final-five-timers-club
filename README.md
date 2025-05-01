@@ -100,7 +100,7 @@ The Emotion Playlist project consists of two main microservices:
 
 ## Deployed Site
 
-Access the site, deployed through DigitalOcean [here](http://165.22.180.89:5001/login)!
+Access the site, deployed through DigitalOcean, at [http://165.22.180.89:5001/login](http://165.22.180.89:5001/login)!
 
 ## Environment Configuration
 
