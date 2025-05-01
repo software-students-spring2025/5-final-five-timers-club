@@ -2,9 +2,17 @@ name: Web App CI/CD
 
 on:
   push:
-    branches: [ main, master ]
+    branches:
+      - main
+      - master
+      - fixes
+      - feature/**
   pull_request:
-    branches: [ main, master ]
+    branches:
+      - main
+      - master
+      - fixes
+      - feature/**
   workflow_dispatch:
 
 jobs:
