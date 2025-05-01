@@ -65,7 +65,7 @@ SECRET_KEY=your_secret_key
 
 ## Visit Emotify
 
-Visit Emotify, deployed using Digital Ocean, at [http://165.22.180.89:5001/](http://165.22.180.89:5001/)
+Visit Emotify, deployed using Digital Ocean, at [http://165.22.180.89:5001/](http://165.22.180.89:5001/).
 
 ## Development Setup
 
