@@ -1,13 +1,19 @@
 {% extends "base.html" %}
-{% block title %}Emotify - Home{% endblock %}
+{% block title %}Emotify – Home{% endblock %}
 {% block content %}
-<div class="text-center">
-  <video id="video" class="img-fluid mb-3" style="max-width: 500px;" autoplay playsinline></video>
-  <div id="stopStart" class="mb-3">
-    <button id="startBtn" class="btn btn-primary me-2">Start Webcam</button>
-    <button id="stopBtn" class="btn btn-secondary">Stop Webcam</button>
+  <div class="text-center">
+    {% if current_user.is_authenticated %}
+      <video id="video" class="img-fluid mb-3" style="max-width: 500px;" autoplay playsinline></video>
+      <div id="stopStart" class="mb-3">
+        <button id="startBtn" class="btn btn-primary me-2">Start Webcam</button>
+        <button id="stopBtn" class="btn btn-secondary">Stop Webcam</button>
+      </div>
+      <div id="result-box" class="mb-3"></div>
+      <div id="player"></div>
+    {% else %}
+      <p class="mt-5">
+        You need to <a href="{{ url_for('auth.login') }}">log in</a> to use the webcam & emotion detection features.
+      </p>
+    {% endif %}
   </div>
-  <div id="result-box" class="mb-3"></div>
-  <div id="player"></div>
-</div>
 {% endblock %}
