@@ -75,17 +75,25 @@ SECRET_KEY=your_secret_key
    ```
 
 2. Create environment variables file:
+
+   ```
    cp .env.example .env
+   ```
 
 3. Edit the `.env` file with your development configuration.
 
 4. Build and start the containers using Docker Compose:
+
+   ```
    docker-compose up -d --build
+   ```
 
 5. The application will be running at http://127.0.0.1:5001
 
 6. To stop the containers:
+   ```
    docker-compose down
+   ```
 
 ## Running Unit Tests
 
