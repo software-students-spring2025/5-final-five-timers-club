@@ -98,6 +98,10 @@ The Emotion Playlist project consists of two main microservices:
 
 5. The application will be running at http://127.0.0.1:6001
 
+## Deployed Site
+
+Access the site, deployed through DigitalOcean [here](http://165.22.180.89:5001/login)!
+
 ## Environment Configuration
 
 The application requires the following environment variables, which can be set in the `.env` file:
