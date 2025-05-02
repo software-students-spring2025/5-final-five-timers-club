@@ -1,12 +1,8 @@
-name: ML Client CI
+name: ML Client CI/CD
 
 on:
   push:
-    branches:
-      - main
-      - master
-      - fixes
-      - feature/**
+    branches: [ main, master ]
     paths: 
       - machine-learning-client/**'
       - 'face_recog.py'
@@ -14,13 +10,8 @@ on:
       - 'requirements.txt'
       - '.github/workflows/ml-client-ci.yml'
 
-      
   pull_request:
-    branches:
-      - main
-      - master
-      - fixes
-      - feature/**
+    branches: [ main, master ]
     paths:
       - 'machine-learning-client/**'
       - '.github/workflows/ml-client-ci.yml'
@@ -60,3 +51,15 @@ jobs:
       - name: Push Docker image
         run: |
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/ml-client:latest
+  
+      - name: Deploy to DigitalOcean Droplet
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.DIGITALOCEAN_HOST }}
+          username: ${{ secrets.DIGITALOCEAN_USER }}
+          key: ${{ secrets.DIGITALOCEAN_SSH_KEY }}
+          script: |
+            cd 5-final-five-timers-club/
+            git pull origin main
+            docker-compose down
+            docker-compose up --build -d

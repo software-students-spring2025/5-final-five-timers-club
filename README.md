@@ -63,6 +63,10 @@ MONGO_URI=mongodb+srv://username:password@cluster.example.mongodb.net/?retryWrit
 SECRET_KEY=your_secret_key
 ```
 
+## Visit Emotify
+
+Visit Emotify, deployed using DigitalOcean, at [http://165.22.180.89:5001/](http://165.22.180.89:5001/).
+
 ## Development Setup
 
 ### Local Development with Docker
